@@ -1,7 +1,7 @@
 <?php
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -38,9 +38,9 @@ $id = $parts[1] ?? null;
 try {
     switch ($resource) {
         case 'productos':
-            require_once __DIR__ . '/../app/Controllers/ProductoController.php';
+            require_once __DIR__ . '/../app/controllers/ProductoController.php';
             $controller = new ProductoController();
-            
+
             switch ($method) {
                 case 'GET':
                     if ($id) {
@@ -49,33 +49,198 @@ try {
                         $controller->index();
                     }
                     break;
-                    
+
                 case 'POST':
                     $controller->store();
                     break;
-                    
+
                 case 'PUT':
                     $controller->update($id);
                     break;
-                    
+
                 case 'DELETE':
                     $controller->destroy($id);
                     break;
-                    
+
                 default:
                     http_response_code(405);
                     echo json_encode(['error' => 'Método no permitido']);
             }
             break;
-            
+
+        case 'usuarios':
+            require_once __DIR__ . '/../app/controllers/UsuarioController.php';
+            $controller = new UsuarioController();
+
+            $action = $parts[1] ?? null;
+
+            if ($action === 'login' && $method === 'POST') {
+                $controller->login();
+            } else {
+                switch ($method) {
+                    case 'GET':
+                        if ($id) {
+                            $controller->show($id);
+                        } else {
+                            $controller->index();
+                        }
+                        break;
+
+                    case 'POST':
+                        $controller->store();
+                        break;
+
+                    case 'PUT':
+                        $controller->update($id);
+                        break;
+
+                    case 'DELETE':
+                        $controller->destroy($id);
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+            }
+            break;
+
+        case 'pedidos':
+            require_once __DIR__ . '/../app/controllers/PedidoController.php';
+            $controller = new PedidoController();
+
+            $action = $parts[2] ?? null;
+
+            if ($id && $action === 'estatus' && $method === 'PATCH') {
+                $controller->updateEstatus($id);
+            } elseif ($id && $action === 'comprador' && $method === 'GET') {
+                $controller->getByComprador($id);
+            } elseif ($id && $action === 'vendedor' && $method === 'GET') {
+                $controller->getByVendedor($id);
+            } else {
+                switch ($method) {
+                    case 'GET':
+                        if ($id) {
+                            $controller->show($id);
+                        } else {
+                            $controller->index();
+                        }
+                        break;
+
+                    case 'POST':
+                        $controller->store();
+                        break;
+
+                    case 'PUT':
+                        $controller->update($id);
+                        break;
+
+                    case 'DELETE':
+                        $controller->destroy($id);
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+            }
+            break;
+
+        case 'pagos':
+            require_once __DIR__ . '/../app/controllers/PagoController.php';
+            $controller = new PagoController();
+
+            $action = $parts[2] ?? null;
+
+            if ($id && $action === 'estatus' && $method === 'PATCH') {
+                $controller->updateEstatus($id);
+            } elseif ($id && $action === 'pedido' && $method === 'GET') {
+                $controller->getByPedido($id);
+            } else {
+                switch ($method) {
+                    case 'GET':
+                        if ($id) {
+                            $controller->show($id);
+                        } else {
+                            $controller->index();
+                        }
+                        break;
+
+                    case 'POST':
+                        $controller->store();
+                        break;
+
+                    case 'PUT':
+                        $controller->update($id);
+                        break;
+
+                    case 'DELETE':
+                        $controller->destroy($id);
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+            }
+            break;
+
+        case 'facturas':
+            require_once __DIR__ . '/../app/controllers/FacturaController.php';
+            $controller = new FacturaController();
+
+            $action = $parts[2] ?? null;
+
+            if ($id && $action === 'cancelar' && $method === 'PATCH') {
+                $controller->cancelar($id);
+            } elseif ($id && $action === 'pedido' && $method === 'GET') {
+                $controller->getByPedido($id);
+            } elseif ($id && $action === 'cliente' && $method === 'GET') {
+                $controller->getByCliente($id);
+            } else {
+                switch ($method) {
+                    case 'GET':
+                        if ($id) {
+                            $controller->show($id);
+                        } else {
+                            $controller->index();
+                        }
+                        break;
+
+                    case 'POST':
+                        $controller->store();
+                        break;
+
+                    case 'PUT':
+                        $controller->update($id);
+                        break;
+
+                    case 'DELETE':
+                        $controller->destroy($id);
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+            }
+            break;
+
         case '':
             http_response_code(200);
             echo json_encode([
                 'mensaje' => 'API Sistema de Ventas',
-                'version' => '1.0'
+                'version' => '1.0',
+                'endpoints' => [
+                    'usuarios' => '/usuarios',
+                    'productos' => '/productos',
+                    'pedidos' => '/pedidos',
+                    'pagos' => '/pagos',
+                    'facturas' => '/facturas'
+                ]
             ]);
             break;
-            
+
         default:
             http_response_code(404);
             echo json_encode([
