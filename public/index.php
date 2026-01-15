@@ -227,6 +227,69 @@ try {
             }
             break;
 
+        case 'carrito':
+            require_once __DIR__ . '/../app/controllers/CarritoController.php';
+            $controller = new CarritoController();
+
+            $action = $parts[2] ?? null;
+
+            // GET /carrito/{usuario_id}/count
+            if ($id && $action === 'count' && $method === 'GET') {
+                $controller->count($id);
+            }
+            // GET /carrito/{usuario_id}/total
+            elseif ($id && $action === 'total' && $method === 'GET') {
+                $controller->total($id);
+            }
+            // DELETE /carrito/{usuario_id}/clear
+            elseif ($id && $action === 'clear' && $method === 'DELETE') {
+                $controller->clear($id);
+            }
+            // Operaciones normales CRUD
+            else {
+                switch ($method) {
+                    case 'GET':
+                        if ($id) {
+                            // GET /carrito/{usuario_id}
+                            $controller->show($id);
+                        } else {
+                            http_response_code(400);
+                            echo json_encode(['error' => 'Se requiere usuario_id']);
+                        }
+                        break;
+
+                    case 'POST':
+                        // POST /carrito
+                        $controller->store();
+                        break;
+
+                    case 'PUT':
+                        // PUT /carrito/{id}
+                        if ($id) {
+                            $controller->update($id);
+                        } else {
+                            http_response_code(400);
+                            echo json_encode(['error' => 'Se requiere id del item']);
+                        }
+                        break;
+
+                    case 'DELETE':
+                        // DELETE /carrito/{id}
+                        if ($id) {
+                            $controller->destroy($id);
+                        } else {
+                            http_response_code(400);
+                            echo json_encode(['error' => 'Se requiere id del item']);
+                        }
+                        break;
+
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+            }
+            break;
+
         case '':
             http_response_code(200);
             echo json_encode([
@@ -237,7 +300,8 @@ try {
                     'productos' => '/productos',
                     'pedidos' => '/pedidos',
                     'pagos' => '/pagos',
-                    'facturas' => '/facturas'
+                    'facturas' => '/facturas',
+                    'carrito' => '/carrito'
                 ]
             ]);
             break;
