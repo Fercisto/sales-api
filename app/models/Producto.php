@@ -15,28 +15,30 @@ class Producto {
 
     // Listar todos
     public function getAll() {
-        $query = "SELECT p.*, i.cantidad_disponible as stock 
+        $query = "SELECT p.*, i.cantidad_disponible as stock, v.nombre as vendedor_nombre
                   FROM " . $this->table_name . " p
                   LEFT JOIN inventario i ON p.id = i.producto_id
+                  LEFT JOIN usuarios v ON p.vendedor_id = v.id
                   ORDER BY p.id DESC";
-        
+
         $stmt = $this->conn->prepare($query);
         $stmt->execute();
-        
+
         return $stmt;
     }
 
     // Obtener uno
     public function getById($id) {
-        $query = "SELECT p.*, i.cantidad_disponible as stock 
+        $query = "SELECT p.*, i.cantidad_disponible as stock, v.nombre as vendedor_nombre
                   FROM " . $this->table_name . " p
                   LEFT JOIN inventario i ON p.id = i.producto_id
+                  LEFT JOIN usuarios v ON p.vendedor_id = v.id
                   WHERE p.id = :id";
-        
+
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id);
         $stmt->execute();
-        
+
         return $stmt;
     }
 

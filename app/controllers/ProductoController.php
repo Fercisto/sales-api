@@ -24,6 +24,7 @@ class ProductoController {
                 'precio' => (float)$row['precio'],
                 'descripcion' => $row['descripcion'],
                 'vendedor_id' => (int)$row['vendedor_id'],
+                'vendedor_nombre' => $row['vendedor_nombre'],
                 'stock' => (int)$row['stock']
             ];
         }
@@ -44,9 +45,10 @@ class ProductoController {
                 'precio' => (float)$row['precio'],
                 'descripcion' => $row['descripcion'],
                 'vendedor_id' => (int)$row['vendedor_id'],
+                'vendedor_nombre' => $row['vendedor_nombre'],
                 'stock' => (int)$row['stock']
             ];
-            
+
             http_response_code(200);
             echo json_encode($producto);
         } else {
