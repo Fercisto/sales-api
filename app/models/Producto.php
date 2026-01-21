@@ -7,7 +7,6 @@ class Producto {
     public $nombre;
     public $precio;
     public $descripcion;
-    public $vendedor_id;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -15,10 +14,9 @@ class Producto {
 
     // Listar todos
     public function getAll() {
-        $query = "SELECT p.*, i.cantidad_disponible as stock, v.nombre as vendedor_nombre
+        $query = "SELECT p.*, i.cantidad_disponible as stock
                   FROM " . $this->table_name . " p
                   LEFT JOIN inventario i ON p.id = i.producto_id
-                  LEFT JOIN usuarios v ON p.vendedor_id = v.id
                   ORDER BY p.id DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -29,10 +27,9 @@ class Producto {
 
     // Obtener uno
     public function getById($id) {
-        $query = "SELECT p.*, i.cantidad_disponible as stock, v.nombre as vendedor_nombre
+        $query = "SELECT p.*, i.cantidad_disponible as stock
                   FROM " . $this->table_name . " p
                   LEFT JOIN inventario i ON p.id = i.producto_id
-                  LEFT JOIN usuarios v ON p.vendedor_id = v.id
                   WHERE p.id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -45,15 +42,14 @@ class Producto {
     // Crear
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                  (nombre, precio, descripcion, vendedor_id)
-                  VALUES (:nombre, :precio, :descripcion, :vendedor_id)";
+                  (nombre, precio, descripcion)
+                  VALUES (:nombre, :precio, :descripcion)";
         
         $stmt = $this->conn->prepare($query);
         
         $stmt->bindParam(':nombre', $this->nombre);
         $stmt->bindParam(':precio', $this->precio);
         $stmt->bindParam(':descripcion', $this->descripcion);
-        $stmt->bindParam(':vendedor_id', $this->vendedor_id);
         
         if ($stmt->execute()) {
             return $this->conn->lastInsertId();

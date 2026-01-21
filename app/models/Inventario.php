@@ -36,20 +36,6 @@ class Inventario {
         return $stmt;
     }
 
-    public function getByVendedor($vendedor_id) {
-        $query = "SELECT i.*, p.nombre, p.precio, p.vendedor_id
-                  FROM " . $this->table_name . " i
-                  INNER JOIN productos p ON i.producto_id = p.id
-                  WHERE p.vendedor_id = :vendedor_id
-                  ORDER BY i.id DESC";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':vendedor_id', $vendedor_id);
-        $stmt->execute();
-
-        return $stmt;
-    }
-
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
                   (producto_id, cantidad_disponible)

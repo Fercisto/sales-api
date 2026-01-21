@@ -62,7 +62,7 @@ class UsuarioController {
             return;
         }
 
-        if (!in_array($data['rol'], ['comprador', 'vendedor', 'admin'])) {
+        if (!in_array($data['rol'], ['comprador', 'admin'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Rol no válido']);
             return;

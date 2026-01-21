@@ -5,7 +5,6 @@ class Pedido {
 
     public $id;
     public $comprador_id;
-    public $vendedor_id;
     public $fecha;
     public $total;
     public $estatus;
@@ -16,11 +15,9 @@ class Pedido {
 
     public function getAll() {
         $query = "SELECT p.*,
-                         uc.nombre as comprador_nombre, uc.email as comprador_email,
-                         uv.nombre as vendedor_nombre, uv.email as vendedor_email
+                         uc.nombre as comprador_nombre, uc.email as comprador_email
                   FROM " . $this->table_name . " p
                   LEFT JOIN usuarios uc ON p.comprador_id = uc.id
-                  LEFT JOIN usuarios uv ON p.vendedor_id = uv.id
                   ORDER BY p.id DESC";
 
         $stmt = $this->conn->prepare($query);
@@ -32,10 +29,8 @@ class Pedido {
     public function getById($id) {
         $query = "SELECT p.*,
                          uc.nombre as comprador_nombre, uc.email as comprador_email,
-                         uv.nombre as vendedor_nombre, uv.email as vendedor_email
                   FROM " . $this->table_name . " p
                   LEFT JOIN usuarios uc ON p.comprador_id = uc.id
-                  LEFT JOIN usuarios uv ON p.vendedor_id = uv.id
                   WHERE p.id = :id";
 
         $stmt = $this->conn->prepare($query);
@@ -48,10 +43,8 @@ class Pedido {
     public function getByComprador($comprador_id) {
         $query = "SELECT p.*,
                          uc.nombre as comprador_nombre,
-                         uv.nombre as vendedor_nombre
                   FROM " . $this->table_name . " p
                   LEFT JOIN usuarios uc ON p.comprador_id = uc.id
-                  LEFT JOIN usuarios uv ON p.vendedor_id = uv.id
                   WHERE p.comprador_id = :comprador_id
                   ORDER BY p.id DESC";
 
@@ -62,32 +55,14 @@ class Pedido {
         return $stmt;
     }
 
-    public function getByVendedor($vendedor_id) {
-        $query = "SELECT p.*,
-                         uc.nombre as comprador_nombre,
-                         uv.nombre as vendedor_nombre
-                  FROM " . $this->table_name . " p
-                  LEFT JOIN usuarios uc ON p.comprador_id = uc.id
-                  LEFT JOIN usuarios uv ON p.vendedor_id = uv.id
-                  WHERE p.vendedor_id = :vendedor_id
-                  ORDER BY p.id DESC";
-
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':vendedor_id', $vendedor_id);
-        $stmt->execute();
-
-        return $stmt;
-    }
-
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                  (comprador_id, vendedor_id, total, estatus)
-                  VALUES (:comprador_id, :vendedor_id, :total, :estatus)";
+                  (comprador_id, total, estatus)
+                  VALUES (:comprador_id, :total, :estatus)";
 
         $stmt = $this->conn->prepare($query);
 
         $stmt->bindParam(':comprador_id', $this->comprador_id);
-        $stmt->bindParam(':vendedor_id', $this->vendedor_id);
         $stmt->bindParam(':total', $this->total);
         $stmt->bindParam(':estatus', $this->estatus);
 

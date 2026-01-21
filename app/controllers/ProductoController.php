@@ -23,8 +23,6 @@ class ProductoController {
                 'nombre' => $row['nombre'],
                 'precio' => (float)$row['precio'],
                 'descripcion' => $row['descripcion'],
-                'vendedor_id' => (int)$row['vendedor_id'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'stock' => (int)$row['stock']
             ];
         }
@@ -44,8 +42,6 @@ class ProductoController {
                 'nombre' => $row['nombre'],
                 'precio' => (float)$row['precio'],
                 'descripcion' => $row['descripcion'],
-                'vendedor_id' => (int)$row['vendedor_id'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'stock' => (int)$row['stock']
             ];
 
@@ -62,7 +58,7 @@ class ProductoController {
         $data = json_decode(file_get_contents("php://input"), true);
 
         // Validaciones básicas
-        if (empty($data['nombre']) || empty($data['precio']) || empty($data['vendedor_id'])) {
+        if (empty($data['nombre']) || empty($data['precio'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Datos incompletos']);
             return;
@@ -71,7 +67,6 @@ class ProductoController {
         $this->producto->nombre = $data['nombre'];
         $this->producto->precio = $data['precio'];
         $this->producto->descripcion = $data['descripcion'] ?? null;
-        $this->producto->vendedor_id = $data['vendedor_id'];
 
         try {
             $this->db->beginTransaction();

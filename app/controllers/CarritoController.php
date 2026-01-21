@@ -24,7 +24,6 @@ class CarritoController {
                 'producto_nombre' => $row['producto_nombre'],
                 'precio' => (float)$row['producto_precio'],
                 'descripcion' => $row['producto_descripcion'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'cantidad' => (int)$row['cantidad'],
                 'subtotal' => (float)$row['subtotal'],
                 'stock_disponible' => (int)$row['stock_disponible']

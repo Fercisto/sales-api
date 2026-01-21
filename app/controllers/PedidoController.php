@@ -29,9 +29,7 @@ class PedidoController {
             $pedidos[] = [
                 'id' => (int)$row['id'],
                 'comprador_id' => (int)$row['comprador_id'],
-                'vendedor_id' => (int)$row['vendedor_id'],
                 'comprador_nombre' => $row['comprador_nombre'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'fecha' => $row['fecha'],
                 'total' => (float)$row['total'],
                 'estatus' => $row['estatus'],
@@ -67,9 +65,7 @@ class PedidoController {
             $pedido = [
                 'id' => (int)$row['id'],
                 'comprador_id' => (int)$row['comprador_id'],
-                'vendedor_id' => (int)$row['vendedor_id'],
                 'comprador_nombre' => $row['comprador_nombre'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'fecha' => $row['fecha'],
                 'total' => (float)$row['total'],
                 'estatus' => $row['estatus'],
@@ -89,7 +85,7 @@ class PedidoController {
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);
 
-        if (empty($data['comprador_id']) || empty($data['vendedor_id']) || empty($data['productos'])) {
+        if (empty($data['comprador_id']) || empty($data['productos'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Datos incompletos']);
             return;
@@ -116,7 +112,6 @@ class PedidoController {
             }
 
             $this->pedido->comprador_id = $data['comprador_id'];
-            $this->pedido->vendedor_id = $data['vendedor_id'];
             $this->pedido->total = $total;
             $this->pedido->estatus = $data['estatus'] ?? 'pendiente';
 
@@ -241,30 +236,7 @@ class PedidoController {
             $pedidos[] = [
                 'id' => (int)$row['id'],
                 'comprador_id' => (int)$row['comprador_id'],
-                'vendedor_id' => (int)$row['vendedor_id'],
                 'comprador_nombre' => $row['comprador_nombre'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
-                'fecha' => $row['fecha'],
-                'total' => (float)$row['total'],
-                'estatus' => $row['estatus']
-            ];
-        }
-
-        http_response_code(200);
-        echo json_encode($pedidos);
-    }
-
-    public function getByVendedor($vendedor_id) {
-        $stmt = $this->pedido->getByVendedor($vendedor_id);
-        $pedidos = [];
-
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $pedidos[] = [
-                'id' => (int)$row['id'],
-                'comprador_id' => (int)$row['comprador_id'],
-                'vendedor_id' => (int)$row['vendedor_id'],
-                'comprador_nombre' => $row['comprador_nombre'],
-                'vendedor_nombre' => $row['vendedor_nombre'],
                 'fecha' => $row['fecha'],
                 'total' => (float)$row['total'],
                 'estatus' => $row['estatus']

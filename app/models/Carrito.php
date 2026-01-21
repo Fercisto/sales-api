@@ -23,12 +23,10 @@ class Carrito {
                     p.precio as producto_precio,
                     p.descripcion as producto_descripcion,
                     (c.cantidad * p.precio) as subtotal,
-                    i.cantidad_disponible as stock_disponible,
-                    v.nombre as vendedor_nombre
+                    i.cantidad_disponible as stock_disponible
                   FROM " . $this->table_name . " c
                   INNER JOIN productos p ON c.producto_id = p.id
                   LEFT JOIN inventario i ON p.id = i.producto_id
-                  LEFT JOIN usuarios v ON p.vendedor_id = v.id
                   WHERE c.usuario_id = :usuario_id
                   ORDER BY c.created_at DESC";
 
