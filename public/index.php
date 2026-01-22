@@ -155,6 +155,8 @@ try {
                 $controller->updateEstatus($id);
             } elseif ($id && $action === 'pedido' && $method === 'GET') {
                 $controller->getByPedido($id);
+            } elseif ($id && $action === 'comprador' && $method === 'GET') {
+                $controller->getByComprador($id);
             } else {
                 switch ($method) {
                     case 'GET':

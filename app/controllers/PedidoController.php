@@ -22,7 +22,9 @@ class PedidoController {
     }
 
     public function index() {
-        $stmt = $this->pedido->getAll();
+        $usuario_id = $_GET['usuario_id'] ?? null;
+
+        $stmt = $this->pedido->getAll($usuario_id);
         $pedidos = [];
 
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

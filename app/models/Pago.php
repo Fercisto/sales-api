@@ -51,6 +51,20 @@ class Pago {
         return $stmt;
     }
 
+    public function getByComprador($comprador_id) {
+        $query = "SELECT pg.*, p.total as total_pedido, p.estatus as estatus_pedido
+                  FROM " . $this->table_name . " pg
+                  INNER JOIN pedidos p ON pg.pedido_id = p.id
+                  WHERE p.comprador_id = :comprador_id
+                  ORDER BY pg.id DESC";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':comprador_id', $comprador_id);
+        $stmt->execute();
+
+        return $stmt;
+    }
+
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
                   (pedido_id, metodo_pago, monto, estatus)

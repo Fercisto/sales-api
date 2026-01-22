@@ -13,14 +13,24 @@ class Pedido {
         $this->conn = $db;
     }
 
-    public function getAll() {
+    public function getAll($comprador_id = null) {
         $query = "SELECT p.*,
                          uc.nombre as comprador_nombre, uc.email as comprador_email
                   FROM " . $this->table_name . " p
-                  LEFT JOIN usuarios uc ON p.comprador_id = uc.id
-                  ORDER BY p.id DESC";
+                  LEFT JOIN usuarios uc ON p.comprador_id = uc.id";
+
+        if ($comprador_id) {
+            $query .= " WHERE p.comprador_id = :comprador_id";
+        }
+
+        $query .= " ORDER BY p.id DESC";
 
         $stmt = $this->conn->prepare($query);
+
+        if ($comprador_id) {
+            $stmt->bindParam(':comprador_id', $comprador_id);
+        }
+
         $stmt->execute();
 
         return $stmt;
@@ -28,7 +38,7 @@ class Pedido {
 
     public function getById($id) {
         $query = "SELECT p.*,
-                         uc.nombre as comprador_nombre, uc.email as comprador_email,
+                         uc.nombre as comprador_nombre, uc.email as comprador_email
                   FROM " . $this->table_name . " p
                   LEFT JOIN usuarios uc ON p.comprador_id = uc.id
                   WHERE p.id = :id";
@@ -42,7 +52,7 @@ class Pedido {
 
     public function getByComprador($comprador_id) {
         $query = "SELECT p.*,
-                         uc.nombre as comprador_nombre,
+                         uc.nombre as comprador_nombre
                   FROM " . $this->table_name . " p
                   LEFT JOIN usuarios uc ON p.comprador_id = uc.id
                   WHERE p.comprador_id = :comprador_id

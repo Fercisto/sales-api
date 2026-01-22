@@ -229,4 +229,25 @@ class PagoController {
             'total_pagado' => (float)$total_pagado
         ]);
     }
+
+    public function getByComprador($comprador_id) {
+        $stmt = $this->pago->getByComprador($comprador_id);
+        $pagos = [];
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $pagos[] = [
+                'id' => (int)$row['id'],
+                'pedido_id' => (int)$row['pedido_id'],
+                'metodo_pago' => $row['metodo_pago'],
+                'monto' => (float)$row['monto'],
+                'estatus' => $row['estatus'],
+                'fecha' => $row['fecha'],
+                'total_pedido' => (float)$row['total_pedido'],
+                'estatus_pedido' => $row['estatus_pedido']
+            ];
+        }
+
+        http_response_code(200);
+        echo json_encode($pagos);
+    }
 }
