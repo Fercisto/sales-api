@@ -248,4 +248,29 @@ class PedidoController {
         http_response_code(200);
         echo json_encode($pedidos);
     }
+
+    public function cancelar($id) {
+        try {
+            $this->pedido->cancelar($id);
+
+            http_response_code(200);
+            echo json_encode(['mensaje' => 'Pedido cancelado exitosamente']);
+
+        } catch (PDOException $e) {
+            // El SP lanza errores con SQLSTATE 45000
+            $mensaje = $e->getMessage();
+
+            // Extraer mensaje limpio del error del SP
+            if (strpos($mensaje, 'El pedido no existe') !== false) {
+                http_response_code(404);
+                echo json_encode(['error' => 'El pedido no existe']);
+            } elseif (strpos($mensaje, 'ya está cancelado') !== false) {
+                http_response_code(400);
+                echo json_encode(['error' => 'El pedido ya está cancelado']);
+            } else {
+                http_response_code(500);
+                echo json_encode(['error' => 'Error al cancelar el pedido', 'detalle' => $mensaje]);
+            }
+        }
+    }
 }

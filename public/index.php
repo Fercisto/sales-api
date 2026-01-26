@@ -1,6 +1,6 @@
 <?php
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
 header("Content-Type: application/json; charset=UTF-8");
 
@@ -114,6 +114,8 @@ try {
 
             if ($id && $action === 'estatus' && $method === 'PATCH') {
                 $controller->updateEstatus($id);
+            } elseif ($id && $action === 'cancelar' && $method === 'PATCH') {
+                $controller->cancelar($id);
             } elseif ($id && $action === 'comprador' && $method === 'GET') {
                 $controller->getByComprador($id);
             } else {

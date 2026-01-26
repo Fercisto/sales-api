@@ -132,4 +132,10 @@ class Pedido {
 
         return $stmt;
     }
+
+    public function cancelar($pedido_id) {
+        $stmt = $this->conn->prepare("CALL sp_cancelar_pedido(:pedido_id)");
+        $stmt->bindParam(':pedido_id', $pedido_id);
+        return $stmt->execute();
+    }
 }
