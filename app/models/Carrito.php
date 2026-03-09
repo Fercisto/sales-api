@@ -146,12 +146,15 @@ class Carrito {
 
     // Verificar disponibilidad de stock
     public function verificarStock($producto_id, $cantidad) {
-        $query = "SELECT i.cantidad_disponible
-                  FROM inventario i
-                  WHERE i.producto_id = :producto_id";
+        $query = "
+            SELECT i.cantidad_disponible
+            FROM inventario i
+            WHERE i.producto_id = :producto_id
+            FOR UPDATE
+        ";
 
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':producto_id', $producto_id);
+        $stmt->bindParam(':producto_id', $producto_id, PDO::PARAM_INT);
         $stmt->execute();
 
         $row = $stmt->fetch(PDO::FETCH_ASSOC);

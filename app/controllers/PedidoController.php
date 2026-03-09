@@ -257,7 +257,7 @@ class PedidoController {
             echo json_encode(['mensaje' => 'Pedido cancelado exitosamente']);
 
         } catch (PDOException $e) {
-            // El SP lanza errores con SQLSTATE 45000
+            // El SP lanza errores
             $mensaje = $e->getMessage();
 
             // Extraer mensaje limpio del error del SP

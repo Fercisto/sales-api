@@ -51,20 +51,13 @@ class CarritoController {
             return;
         }
 
-        $usuario_id = $data['usuario_id'];
-        $producto_id = $data['producto_id'];
-        $cantidad = $data['cantidad'] ?? 1;
+        $usuario_id = (int)$data['usuario_id'];
+        $producto_id = (int)$data['producto_id'];
+        $cantidad = (int)($data['cantidad'] ?? 1);
 
         if ($cantidad < 1) {
             http_response_code(400);
             echo json_encode(['error' => 'La cantidad debe ser mayor a 0']);
-            return;
-        }
-
-        // Verificar si hay stock disponible
-        if (!$this->carrito->verificarStock($producto_id, $cantidad)) {
-            http_response_code(400);
-            echo json_encode(['error' => 'No hay suficiente stock disponible']);
             return;
         }
 
@@ -75,10 +68,9 @@ class CarritoController {
             $existe = $this->carrito->existeEnCarrito($usuario_id, $producto_id);
 
             if ($existe) {
-                // Si existe, incrementar la cantidad
                 $nueva_cantidad = $existe['cantidad'] + $cantidad;
 
-                // Verificar stock con la nueva cantidad
+                // Verificar stock BLOQUEADO
                 if (!$this->carrito->verificarStock($producto_id, $nueva_cantidad)) {
                     $this->db->rollBack();
                     http_response_code(400);
@@ -86,11 +78,21 @@ class CarritoController {
                     return;
                 }
 
+                // Actualizar cantidad
                 $this->carrito->incrementarCantidad($existe['id'], $cantidad);
                 $item_id = $existe['id'];
                 $mensaje = 'Cantidad actualizada en el carrito';
+
             } else {
-                // Si no existe, crear nuevo item
+                // Verificar stock BLOQUEADO
+                if (!$this->carrito->verificarStock($producto_id, $cantidad)) {
+                    $this->db->rollBack();
+                    http_response_code(400);
+                    echo json_encode(['error' => 'No hay suficiente stock disponible']);
+                    return;
+                }
+
+                // Crear item
                 $this->carrito->usuario_id = $usuario_id;
                 $this->carrito->producto_id = $producto_id;
                 $this->carrito->cantidad = $cantidad;
@@ -99,29 +101,34 @@ class CarritoController {
                 $mensaje = 'Producto agregado al carrito';
             }
 
-            if ($item_id) {
-                $this->db->commit();
-
-                // Obtener los totales actualizados
-                $total_items = $this->carrito->countItems($usuario_id);
-                $total = $this->carrito->calculateTotal($usuario_id);
-
-                http_response_code(201);
-                echo json_encode([
-                    'mensaje' => $mensaje,
-                    'id' => (int)$item_id,
-                    'total_items' => $total_items,
-                    'total' => $total
-                ]);
-            } else {
+            if (!$item_id) {
                 $this->db->rollBack();
                 http_response_code(500);
                 echo json_encode(['error' => 'No se pudo agregar al carrito']);
+                return;
             }
+
+            // Confirmar
+            $this->db->commit();
+
+            // Totales
+            $total_items = $this->carrito->countItems($usuario_id);
+            $total = $this->carrito->calculateTotal($usuario_id);
+
+            http_response_code(201);
+            echo json_encode([
+                'mensaje' => $mensaje,
+                'id' => (int)$item_id,
+                'total_items' => $total_items,
+                'total' => $total
+            ]);
+
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode(['error' => 'Error interno']);
         }
     }
 
