@@ -155,6 +155,10 @@ try {
 
             if ($id && $action === 'estatus' && $method === 'PATCH') {
                 $controller->updateEstatus($id);
+            } elseif ($id && $action === 'cancelar' && $method === 'POST') {
+                $controller->cancelar($id);
+            } elseif ($id && $action === 'reembolsar' && $method === 'POST') {
+                $controller->reembolsar($id);
             } elseif ($id && $action === 'pedido' && $method === 'GET') {
                 $controller->getByPedido($id);
             } elseif ($id && $action === 'comprador' && $method === 'GET') {
@@ -185,6 +189,19 @@ try {
                         http_response_code(405);
                         echo json_encode(['error' => 'Método no permitido']);
                 }
+            }
+            break;
+
+        case 'webhooks':
+            $action = $parts[1] ?? null;
+
+            if ($action === 'conekta' && $method === 'POST') {
+                require_once __DIR__ . '/../app/controllers/WebhookController.php';
+                $controller = new WebhookController();
+                $controller->handle();
+            } else {
+                http_response_code(404);
+                echo json_encode(['error' => 'Webhook no encontrado']);
             }
             break;
 
