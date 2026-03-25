@@ -177,14 +177,6 @@ try {
                         $controller->store();
                         break;
 
-                    case 'PUT':
-                        $controller->update($id);
-                        break;
-
-                    case 'DELETE':
-                        $controller->destroy($id);
-                        break;
-
                     default:
                         http_response_code(405);
                         echo json_encode(['error' => 'Método no permitido']);
@@ -192,17 +184,10 @@ try {
             }
             break;
 
+        // Los webhooks de Conekta son manejados por el servicio Node.js (conektahook)
         case 'webhooks':
-            $action = $parts[1] ?? null;
-
-            if ($action === 'conekta' && $method === 'POST') {
-                require_once __DIR__ . '/../app/controllers/WebhookController.php';
-                $controller = new WebhookController();
-                $controller->handle();
-            } else {
-                http_response_code(404);
-                echo json_encode(['error' => 'Webhook no encontrado']);
-            }
+            http_response_code(404);
+            echo json_encode(['error' => 'Endpoint movido al servicio conektahook (Node.js)']);
             break;
 
         case 'facturas':
