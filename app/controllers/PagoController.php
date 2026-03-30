@@ -77,7 +77,7 @@ class PagoController {
         }
 
         // Conekta maneja montos en centavos (entero)
-        $montoMXN      = (float)$pedidoData['total'];
+        $montoMXN = (float)$pedidoData['total'];
         $montoCentavos = (int)round($montoMXN * 100);
 
         try {
