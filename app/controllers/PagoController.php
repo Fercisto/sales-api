@@ -66,13 +66,13 @@ class PagoController {
             echo json_encode([
                 'error' => 'Faltan campos requeridos',
                 'meta' => [
-                    'paso'     => 'validacion_entrada',
+                    'paso' => 'validacion_entrada',
                     'recibido' => array_keys($data ?? []),
                     'faltante' => array_values(array_filter([
-                        empty($data['pedido_id'])       ? 'pedido_id'       : null,
-                        empty($data['token'])           ? 'token'           : null,
-                        empty($data['customer_name'])   ? 'customer_name'   : null,
-                        empty($data['customer_email'])  ? 'customer_email'  : null,
+                        empty($data['pedido_id']) ? 'pedido_id' : null,
+                        empty($data['token']) ? 'token' : null,
+                        empty($data['customer_name']) ? 'customer_name' : null,
+                        empty($data['customer_email']) ? 'customer_email' : null,
                     ])),
                 ]
             ]);
@@ -161,11 +161,11 @@ class PagoController {
                     'paso' => $paso,
                     'detalle' => $e->getMessage(),
                     'contexto' => [
-                        'pedido_id'      => $data['pedido_id'] ?? null,
+                        'pedido_id' => $data['pedido_id'] ?? null,
                         'monto_centavos' => $montoCentavos ?? null,
-                        'tiene_token'    => !empty($data['token']),
-                        'tiene_email'    => !empty($data['customer_email']),
-                        'conekta_order'  => $conektaOrder['id'] ?? null,
+                        'tiene_token' => !empty($data['token']),
+                        'tiene_email' => !empty($data['customer_email']),
+                        'conekta_order' => $conektaOrder['id'] ?? null,
                     ],
                 ]
             ]);
@@ -296,7 +296,7 @@ class PagoController {
             echo json_encode([
                 'error' => $e->getMessage(),
                 'meta' => [
-                    'paso'    => 'reembolsar_pago',
+                    'paso' => 'reembolsar_pago',
                     'detalle' => $e->getMessage(),
                     'contexto' => [
                         'pago_id' => $id,
