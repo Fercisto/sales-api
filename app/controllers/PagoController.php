@@ -63,7 +63,19 @@ class PagoController {
         if (empty($data['pedido_id']) || empty($data['token']) ||
             empty($data['customer_name']) || empty($data['customer_email'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Faltan campos: pedido_id, token, customer_name, customer_email']);
+            echo json_encode([
+                'error' => 'Faltan campos requeridos',
+                'meta' => [
+                    'paso'     => 'validacion_entrada',
+                    'recibido' => array_keys($data ?? []),
+                    'faltante' => array_values(array_filter([
+                        empty($data['pedido_id'])       ? 'pedido_id'       : null,
+                        empty($data['token'])           ? 'token'           : null,
+                        empty($data['customer_name'])   ? 'customer_name'   : null,
+                        empty($data['customer_email'])  ? 'customer_email'  : null,
+                    ])),
+                ]
+            ]);
             return;
         }
 
@@ -145,7 +157,7 @@ class PagoController {
             http_response_code(500);
             echo json_encode([
                 'error' => $e->getMessage(),
-                '_meta' => [
+                'meta' => [
                     'paso' => $paso,
                     'detalle' => $e->getMessage(),
                     'contexto' => [
@@ -165,7 +177,7 @@ class PagoController {
      * Cancela la orden en Conekta y actualiza el estatus local.
      */
     public function cancelar($id) {
-        $stmt     = $this->pago->getById($id);
+        $stmt = $this->pago->getById($id);
         $pagoData = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$pagoData) {
@@ -207,7 +219,18 @@ class PagoController {
         } catch (Exception $e) {
             $this->db->rollBack();
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'meta' => [
+                    'paso' => 'cancelar_pago',
+                    'detalle' => $e->getMessage(),
+                    'contexto' => [
+                        'pago_id' => $id,
+                        'conekta_order_id' => $pagoData['conekta_order_id'] ?? null,
+                        'pedido_id' => $pagoData['pedido_id'] ?? null,
+                    ],
+                ]
+            ]);
         }
     }
 
@@ -216,8 +239,8 @@ class PagoController {
      * Body opcional: { "amount": 5000 }  (en centavos; si se omite = reembolso total)
      */
     public function reembolsar($id) {
-        $data     = json_decode(file_get_contents("php://input"), true) ?? [];
-        $stmt     = $this->pago->getById($id);
+        $data = json_decode(file_get_contents("php://input"), true) ?? [];
+        $stmt = $this->pago->getById($id);
         $pagoData = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$pagoData) {
@@ -270,7 +293,19 @@ class PagoController {
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'meta' => [
+                    'paso'    => 'reembolsar_pago',
+                    'detalle' => $e->getMessage(),
+                    'contexto' => [
+                        'pago_id' => $id,
+                        'conekta_order_id' => $pagoData['conekta_order_id'] ?? null,
+                        'charge_id' => $chargeId ?? null,
+                        'amount' => $amount ?? null,
+                    ],
+                ]
+            ]);
         }
     }
 
@@ -286,7 +321,7 @@ class PagoController {
         try {
             $this->db->beginTransaction();
 
-            $stmt     = $this->pago->getById($id);
+            $stmt = $this->pago->getById($id);
             $pagoData = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$pagoData) {

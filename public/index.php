@@ -35,6 +35,15 @@ if (isset($parts[0]) && $parts[0] === 'api') {
 
 $resource = $parts[0] ?? '';
 $id = $parts[1] ?? null;
+$action = $parts[2] ?? null;
+
+$_routerMeta = [
+    'method' => $method,
+    'resource' => $resource,
+    'id' => $id,
+    'action' => $action,
+    'uri' => $uri,
+];
 
 try {
     switch ($resource) {
@@ -314,14 +323,15 @@ try {
             http_response_code(404);
             echo json_encode([
                 'error' => 'Recurso no encontrado',
-                'recurso_buscado' => $resource
+                '_meta' => $_routerMeta,
             ]);
     }
     
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
-        'error' => 'Error del servidor',
-        'mensaje' => $e->getMessage()
+        'error'  => 'Error del servidor',
+        'mensaje' => $e->getMessage(),
+        '_meta' => $_routerMeta,
     ]);
 }
