@@ -93,9 +93,11 @@ class PedidoController {
             return;
         }
 
+        $paso = 'inicio';
         try {
             $this->db->beginTransaction();
 
+            $paso = 'calcular_total';
             $total = 0;
             foreach ($data['productos'] as $item) {
                 if (!$this->inventario->verificarDisponibilidad($item['producto_id'], $item['cantidad'])) {
@@ -113,6 +115,7 @@ class PedidoController {
                 $total += $precio * $item['cantidad'];
             }
 
+            $paso = 'crear_pedido_bd';
             $this->pedido->comprador_id = $data['comprador_id'];
             $this->pedido->total = $total;
             $this->pedido->estatus = $data['estatus'] ?? 'pendiente';
@@ -123,6 +126,7 @@ class PedidoController {
                 throw new Exception("No se pudo crear el pedido");
             }
 
+            $paso = 'agregar_productos_pedido';
             foreach ($data['productos'] as $item) {
                 $stmtProd = $this->producto->getById($item['producto_id']);
                 $prodData = $stmtProd->fetch(PDO::FETCH_ASSOC);
@@ -137,6 +141,7 @@ class PedidoController {
                     throw new Exception("Error al agregar producto al pedido");
                 }
 
+                $paso = 'decrementar_inventario';
                 if (!$this->inventario->decrementar($item['producto_id'], $item['cantidad'])) {
                     throw new Exception("Error al actualizar inventario");
                 }
@@ -154,7 +159,13 @@ class PedidoController {
         } catch (Exception $e) {
             $this->db->rollBack();
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'debug' => [
+                    'paso' => $paso,
+                    'detalle' => $e->getMessage(),
+                ]
+            ]);
         }
     }
 

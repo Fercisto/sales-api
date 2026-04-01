@@ -80,10 +80,12 @@ class PagoController {
         $montoMXN = (float)$pedidoData['total'];
         $montoCentavos = (int)round($montoMXN * 100);
 
+        $paso = 'inicio';
         try {
             $this->db->beginTransaction();
 
             // Construir payload para Conekta
+            $paso = 'construir_payload';
             $conektaPayload = [
                 'currency' => 'MXN',
                 'customer_info' => [
@@ -109,9 +111,11 @@ class PagoController {
                 'metadata' => ['pedido_id' => (string)$data['pedido_id']],
             ];
 
+            $paso = 'llamar_conekta_api';
             $conektaOrder = $this->conekta->createOrder($conektaPayload);
 
             // Guardar pago en BD como pendiente
+            $paso = 'guardar_pago_bd';
             $this->pago->pedido_id = $data['pedido_id'];
             $this->pago->metodo_pago= 'tarjeta';
             $this->pago->monto = $montoMXN;
@@ -139,7 +143,13 @@ class PagoController {
         } catch (Exception $e) {
             $this->db->rollBack();
             http_response_code(500);
-            echo json_encode(['error' => $e->getMessage()]);
+            echo json_encode([
+                'error' => $e->getMessage(),
+                'debug' => [
+                    'paso' => $paso,
+                    'detalle' => $e->getMessage(),
+                ]
+            ]);
         }
     }
 
