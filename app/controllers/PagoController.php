@@ -145,9 +145,16 @@ class PagoController {
             http_response_code(500);
             echo json_encode([
                 'error' => $e->getMessage(),
-                'debug' => [
+                '_meta' => [
                     'paso' => $paso,
                     'detalle' => $e->getMessage(),
+                    'contexto' => [
+                        'pedido_id'      => $data['pedido_id'] ?? null,
+                        'monto_centavos' => $montoCentavos ?? null,
+                        'tiene_token'    => !empty($data['token']),
+                        'tiene_email'    => !empty($data['customer_email']),
+                        'conekta_order'  => $conektaOrder['id'] ?? null,
+                    ],
                 ]
             ]);
         }

@@ -35,7 +35,12 @@ class ConektaService {
 
         if ($httpStatus >= 400) {
             $msg = $decoded['details'][0]['message'] ?? $decoded['message'] ?? 'Error en Conekta';
-            throw new Exception('Conekta error ' . $httpStatus . ': ' . $msg);
+            throw new Exception(json_encode([
+                'http' => $httpStatus,
+                'mensaje' => $msg,
+                'endpoint' => $method . ' ' . $url,
+                'raw' => $decoded,
+            ]));
         }
 
         return $decoded;

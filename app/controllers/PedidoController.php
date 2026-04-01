@@ -89,7 +89,17 @@ class PedidoController {
 
         if (empty($data['comprador_id']) || empty($data['productos'])) {
             http_response_code(400);
-            echo json_encode(['error' => 'Datos incompletos']);
+            echo json_encode([
+                'error' => 'Datos incompletos',
+                'meta' => [
+                    'paso' => 'validacion_entrada',
+                    'recibido' => array_keys($data ?? []),
+                    'faltante' => array_values(array_filter([
+                        empty($data['usuario_id']) ? 'usuario_id' : null,
+                        empty($data['productos']) ? 'productos' : null,
+                    ])),
+                ]
+            ]);
             return;
         }
 
@@ -161,9 +171,15 @@ class PedidoController {
             http_response_code(500);
             echo json_encode([
                 'error' => $e->getMessage(),
-                'debug' => [
+                '_meta' => [
                     'paso' => $paso,
                     'detalle' => $e->getMessage(),
+                    'contexto' => [
+                        'comprador_id' => $data['comprador_id'] ?? null,
+                        'total' => $total ?? null,
+                        'pedido_id' => $pedido_id ?? null,
+                        'num_productos' => count($data['productos'] ?? []),
+                    ],
                 ]
             ]);
         }
