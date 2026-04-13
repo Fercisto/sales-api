@@ -45,6 +45,8 @@ class CarritoController {
     public function store() {
         $data = json_decode(file_get_contents("php://input"), true);
 
+        error_log("CarritoController::store data=" . json_encode($data));
+
         if (empty($data['usuario_id']) || empty($data['producto_id'])) {
             http_response_code(400);
             echo json_encode(['error' => 'usuario_id y producto_id son requeridos']);
@@ -128,7 +130,7 @@ class CarritoController {
                 $this->db->rollBack();
             }
             http_response_code(500);
-            echo json_encode(['error' => 'Error interno']);
+            echo json_encode(['error' => 'Error interno', 'detalle' => $e->getMessage()]);
         }
     }
 
